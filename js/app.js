@@ -22,11 +22,15 @@ class App {
         this.quiz = null;
         this.isInitialized = false;
         
-        // Δέσμευση μεθόδων - ΠΡΟΣΟΧΗ: ΠΡΕΠΕΙ να οριστούν μετά τη δημιουργία
+        // ΔΕΝ κάνουμε bind εδώ - θα το κάνουμε στο init()
         console.log('✅ App constructor complete');
     }
 
-    // Οι μέθοδοι ορίζονται ΕΔΩ
+    // ============================================
+    // ΟΛΕΣ ΟΙ ΜΕΘΟΔΟΙ ΟΡΙΖΟΝΤΑΙ ΕΔΩ
+    // ============================================
+
+    // Καλείται όταν ολοκληρώνεται μια ερώτηση
     onQuestionComplete(result) {
         console.log('📝 Question complete:', result);
         if (this.quiz) {
@@ -36,22 +40,33 @@ class App {
         }
     }
 
+    // Καλείται όταν ολοκληρώνεται το quiz
     onQuizComplete(results) {
         console.log('🏁 Quiz complete:', results);
         this.ui.showResults(results);
     }
 
+    // Καλείται για σφάλματα
     onError(message) {
         console.error('❌ Error:', message);
         this.ui.showError(message);
     }
 
+    // ============================================
+    // ΚΥΡΙΑ ΜΕΘΟΔΟΣ ΕΚΚΙΝΗΣΗΣ
+    // ============================================
+
     async init() {
         try {
             console.log('🚀 App initializing...');
             
-            // Δέσμευση μεθόδων ΑΦΟΥ οριστούν
-            this.init = this.init.bind(this);
+            // ============================================
+            // ΔΕΣΜΕΥΣΗ ΜΕΘΟΔΩΝ - ΕΔΩ ΚΑΙ ΜΟΝΟ ΕΔΩ
+            // ============================================
+            this.onQuestionComplete = this.onQuestionComplete.bind(this);
+            this.onQuizComplete = this.onQuizComplete.bind(this);
+            this.onError = this.onError.bind(this);
+            
             this.startQuiz = this.startQuiz.bind(this);
             this.prepareQuestions = this.prepareQuestions.bind(this);
             this.shuffleArray = this.shuffleArray.bind(this);
@@ -62,6 +77,8 @@ class App {
             this.updateQuestionCountVisibility = this.updateQuestionCountVisibility.bind(this);
             this.exportResults = this.exportResults.bind(this);
             this.downloadFile = this.downloadFile.bind(this);
+            this.setupEventListeners = this.setupEventListeners.bind(this);
+            this.saveSettings = this.saveSettings.bind(this);
             
             // Show loading state
             this.ui.showLoading();
@@ -145,7 +162,6 @@ class App {
             console.error('❌ Failed to initialize app:', error);
             this.ui.showError(`Σφάλμα κατά την εκκίνηση: ${error.message}`);
             
-            // Still try to show home
             setTimeout(() => {
                 this.ui.showHome();
                 this.ui.showToast('Η εφαρμογή ξεκίνησε με περιορισμένη λειτουργικότητα');
@@ -153,36 +169,67 @@ class App {
         }
     }
 
+    // ============================================
+    // ΡΥΘΜΙΣΗ EVENT LISTENERS
+    // ============================================
+
     setupEventListeners() {
         console.log('🔧 Setting up event listeners...');
         
-        // Home screen
-        document.getElementById('welcome-btn').addEventListener('click', () => {
-            this.ui.showHomeControls(true);
-        });
+        const welcomeBtn = document.getElementById('welcome-btn');
+        const kumiteBtn = document.getElementById('kumite-btn');
+        const kataBtn = document.getElementById('kata-btn');
+        const settingsBtn = document.getElementById('settings-btn');
+        const exitBtn = document.getElementById('exit-btn');
+        const settingsBackBtn = document.getElementById('settings-back-btn');
+        const trueBtn = document.getElementById('true-btn');
+        const falseBtn = document.getElementById('false-btn');
+        const pauseBtn = document.getElementById('pause-btn');
+        const resumeBtn = document.getElementById('resume-btn');
+        const questionPanel = document.getElementById('question-panel');
+        const reviewBtn = document.getElementById('review-btn');
+        const reviewNextBtn = document.getElementById('review-next-btn');
+        const reviewCloseBtn = document.getElementById('review-close-btn');
+        const exportBtn = document.getElementById('export-btn');
+        const homeBtn = document.getElementById('home-btn');
 
-        document.getElementById('kumite-btn').addEventListener('click', () => {
-            this.startQuiz('kumite');
-        });
+        if (welcomeBtn) {
+            welcomeBtn.addEventListener('click', () => {
+                this.ui.showHomeControls(true);
+            });
+        }
 
-        document.getElementById('kata-btn').addEventListener('click', () => {
-            this.startQuiz('kata');
-        });
+        if (kumiteBtn) {
+            kumiteBtn.addEventListener('click', () => {
+                this.startQuiz('kumite');
+            });
+        }
 
-        document.getElementById('settings-btn').addEventListener('click', () => {
-            this.ui.showSettings();
-            this.settings.applyToUI();
-        });
+        if (kataBtn) {
+            kataBtn.addEventListener('click', () => {
+                this.startQuiz('kata');
+            });
+        }
 
-        document.getElementById('exit-btn').addEventListener('click', () => {
-            this.handleExit();
-        });
+        if (settingsBtn) {
+            settingsBtn.addEventListener('click', () => {
+                this.ui.showSettings();
+                this.settings.applyToUI();
+            });
+        }
 
-        // Settings
-        document.getElementById('settings-back-btn').addEventListener('click', () => {
-            this.saveSettings();
-            this.ui.showHome();
-        });
+        if (exitBtn) {
+            exitBtn.addEventListener('click', () => {
+                this.handleExit();
+            });
+        }
+
+        if (settingsBackBtn) {
+            settingsBackBtn.addEventListener('click', () => {
+                this.saveSettings();
+                this.ui.showHome();
+            });
+        }
 
         document.querySelectorAll('input[name="mode"]').forEach(input => {
             input.addEventListener('change', (e) => {
@@ -197,76 +244,84 @@ class App {
             });
         });
 
-        // Quiz controls
-        const trueBtn = document.getElementById('true-btn');
-        const falseBtn = document.getElementById('false-btn');
-        const pauseBtn = document.getElementById('pause-btn');
-        const resumeBtn = document.getElementById('resume-btn');
-        const questionPanel = document.getElementById('question-panel');
+        if (trueBtn) {
+            trueBtn.addEventListener('click', () => {
+                if (this.quiz) this.quiz.answerQuestion(true);
+            });
+        }
 
-        if (trueBtn) trueBtn.addEventListener('click', () => {
-            if (this.quiz) this.quiz.answerQuestion(true);
-        });
+        if (falseBtn) {
+            falseBtn.addEventListener('click', () => {
+                if (this.quiz) this.quiz.answerQuestion(false);
+            });
+        }
 
-        if (falseBtn) falseBtn.addEventListener('click', () => {
-            if (this.quiz) this.quiz.answerQuestion(false);
-        });
+        if (pauseBtn) {
+            pauseBtn.addEventListener('click', () => {
+                if (this.quiz) this.quiz.togglePause();
+            });
+        }
 
-        if (pauseBtn) pauseBtn.addEventListener('click', () => {
-            if (this.quiz) this.quiz.togglePause();
-        });
+        if (resumeBtn) {
+            resumeBtn.addEventListener('click', () => {
+                if (this.quiz) this.quiz.togglePause();
+            });
+        }
 
-        if (resumeBtn) resumeBtn.addEventListener('click', () => {
-            if (this.quiz) this.quiz.togglePause();
-        });
+        if (questionPanel) {
+            questionPanel.addEventListener('click', () => {
+                if (this.quiz) this.quiz.nextQuestion();
+            });
+        }
 
-        if (questionPanel) questionPanel.addEventListener('click', () => {
-            if (this.quiz) this.quiz.nextQuestion();
-        });
+        if (reviewBtn) {
+            reviewBtn.addEventListener('click', () => {
+                this.ui.toggleReview();
+            });
+        }
 
-        // Results
-        document.getElementById('review-btn').addEventListener('click', () => {
-            this.ui.toggleReview();
-        });
+        if (reviewNextBtn) {
+            reviewNextBtn.addEventListener('click', () => {
+                this.ui.nextReviewQuestion();
+            });
+        }
 
-        document.getElementById('review-next-btn').addEventListener('click', () => {
-            this.ui.nextReviewQuestion();
-        });
+        if (reviewCloseBtn) {
+            reviewCloseBtn.addEventListener('click', () => {
+                this.ui.closeReview();
+            });
+        }
 
-        document.getElementById('review-close-btn').addEventListener('click', () => {
-            this.ui.closeReview();
-        });
+        if (exportBtn) {
+            exportBtn.addEventListener('click', () => {
+                this.exportResults();
+            });
+        }
 
-        document.getElementById('export-btn').addEventListener('click', () => {
-            this.exportResults();
-        });
+        if (homeBtn) {
+            homeBtn.addEventListener('click', () => {
+                this.goHome();
+            });
+        }
 
-        document.getElementById('home-btn').addEventListener('click', () => {
-            this.goHome();
-        });
-
-        // Keyboard shortcuts
         document.addEventListener('keydown', this.handleKeyboard);
-
-        // Orientation change
         window.addEventListener('orientationchange', () => {
             this.ui.handleOrientationChange();
         });
-
-        // Online/Offline
         window.addEventListener('online', () => {
             this.ui.showToast('Είστε online');
         });
-
         window.addEventListener('offline', () => {
             this.ui.showToast('Είστε offline. Ορισμένες λειτουργίες μπορεί να μην είναι διαθέσιμες.');
         });
 
-        // Swipe support
         this.setupSwipeSupport();
-        
         console.log('✅ Event listeners set up');
     }
+
+    // ============================================
+    // ΜΕΘΟΔΟΙ QUIZ
+    // ============================================
 
     startQuiz(mode) {
         console.log(`🎯 Starting quiz: ${mode}`);
@@ -289,21 +344,17 @@ class App {
             return;
         }
 
-        // Create quiz session
         this.quiz = new QuizEngine(
             questions,
             settings,
             mode,
-            this.onQuestionComplete.bind(this),
-            this.onQuizComplete.bind(this),
-            this.onError.bind(this)
+            this.onQuestionComplete,
+            this.onQuizComplete,
+            this.onError
         );
 
-        // Setup UI for quiz
         this.ui.setupQuiz(mode, questions.length, settings.panelColor);
         this.ui.updateQuizProgress(1, questions.length);
-
-        // Start the quiz
         this.quiz.start();
         this.ui.startQuiz();
     }
@@ -337,10 +388,25 @@ class App {
         return arr;
     }
 
+    // ============================================
+    // ΜΕΘΟΔΟΙ SETTINGS
+    // ============================================
+
     saveSettings() {
         const settings = this.settings.collectFromUI();
         this.settings.save(settings);
     }
+
+    updateQuestionCountVisibility(mode) {
+        const group = document.getElementById('question-count-group');
+        if (group) {
+            group.style.display = mode === 'specific_random' ? 'block' : 'none';
+        }
+    }
+
+    // ============================================
+    // ΜΕΘΟΔΟΙ ΠΛΟΗΓΗΣΗΣ
+    // ============================================
 
     goHome() {
         if (this.quiz && this.quiz.isActive()) {
@@ -362,6 +428,10 @@ class App {
             console.log('Window close not allowed, showing exit message instead');
         }
     }
+
+    // ============================================
+    // KEYBOARD SUPPORT
+    // ============================================
 
     handleKeyboard(event) {
         if (this.ui.isSettingsVisible() || !this.quiz || !this.quiz.isActive()) {
@@ -401,6 +471,10 @@ class App {
         }
     }
 
+    // ============================================
+    // SWIPE SUPPORT
+    // ============================================
+
     setupSwipeSupport() {
         let touchStartX = 0;
         let touchStartY = 0;
@@ -429,12 +503,9 @@ class App {
         }, { passive: true });
     }
 
-    updateQuestionCountVisibility(mode) {
-        const group = document.getElementById('question-count-group');
-        if (group) {
-            group.style.display = mode === 'specific_random' ? 'block' : 'none';
-        }
-    }
+    // ============================================
+    // ΕΞΑΓΩΓΗ ΑΠΟΤΕΛΕΣΜΑΤΩΝ
+    // ============================================
 
     exportResults() {
         if (!this.quiz) return;
@@ -480,7 +551,10 @@ class App {
     }
 }
 
-// Δημιουργία και εκκίνηση της εφαρμογής
+// ============================================
+// ΕΚΚΙΝΗΣΗ ΤΗΣ ΕΦΑΡΜΟΓΗΣ
+// ============================================
+
 console.log('📱 Creating app instance...');
 const app = new App();
 console.log('🚀 Starting app...');
