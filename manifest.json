@@ -1,0 +1,10 @@
+{
+  "name": "Εξέταση KUMITE / KATA",
+  "short_name": "KUMITE/KATA",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#FFC0CB",
+  "theme_color": "#FFC0CB",
+  "orientation": "landscape",
+  "icons": []
+}
