@@ -5,10 +5,11 @@
 
 export class ExcelLoader {
     constructor() {
+        // Χρησιμοποιούμε σχετικές διαδρομές που δουλεύουν παντού
         this.filePaths = {
-            kumite: '/data/qkumite.xlsx',
-            kata: '/data/qkata.xlsx',
-            affirmations: '/data/mini-affirmations.xlsx'
+            kumite: 'data/qkumite.xlsx',
+            kata: 'data/qkata.xlsx',
+            affirmations: 'data/mini-affirmations.xlsx'
         };
     }
 
@@ -26,9 +27,11 @@ export class ExcelLoader {
 
     async loadExcel(path, type) {
         try {
+            console.log(`Loading ${type} from: ${path}`);
+            
             const response = await fetch(path);
             if (!response.ok) {
-                throw new Error(`Failed to load ${type} Excel file: ${response.status}`);
+                throw new Error(`Failed to load ${type} Excel file: ${response.status} - ${response.statusText}`);
             }
             
             const arrayBuffer = await response.arrayBuffer();
@@ -46,13 +49,17 @@ export class ExcelLoader {
             }
             
             if (type === 'affirmations') {
-                return this.parseAffirmations(data);
+                const result = this.parseAffirmations(data);
+                console.log(`Loaded ${result.length} affirmations`);
+                return result;
             }
             
-            return this.parseQuestions(data);
+            const result = this.parseQuestions(data);
+            console.log(`Loaded ${result.length} questions for ${type}`);
+            return result;
             
         } catch (error) {
-            console.error(`Error loading ${type}:`, error);
+            console.error(`Error loading ${type} from ${path}:`, error);
             throw error;
         }
     }
