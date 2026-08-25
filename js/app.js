@@ -34,7 +34,6 @@ import {
   confirmDialog,
   bindQuestionPanelGestures,
   setOfflineBannerVisible,
-  setRotateOverlayVisible,
 } from './ui.js';
 import {
   shuffle,
@@ -69,7 +68,6 @@ async function bootstrap() {
   registerServiceWorker();
   wireStaticEventListeners();
   setupOnlineOfflineIndicator();
-  setupOrientationWatcher();
 
   const [kumiteResult, kataResult, affirmationsResult] = await Promise.all([
     loadQuestionDataset(DATA_PATHS.kumite),
@@ -452,23 +450,10 @@ function setupOnlineOfflineIndicator() {
   update();
 }
 
-// ===========================================================================
-// Landscape orientation watcher (section 46)
-// ===========================================================================
-
-function setupOrientationWatcher() {
-  const MOBILE_MAX_WIDTH = 900;
-  const update = () => {
-    const isPortrait = window.innerHeight > window.innerWidth;
-    const isMobileSized = Math.min(window.innerWidth, window.innerHeight) <= MOBILE_MAX_WIDTH;
-    const hasCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
-    const shouldWarn = isPortrait && isMobileSized && hasCoarsePointer;
-    setRotateOverlayVisible(els, shouldWarn);
-  };
-  window.addEventListener('resize', update);
-  window.addEventListener('orientationchange', update);
-  update();
-}
+// Note: an earlier version forced a "please rotate to landscape"
+// overlay on mobile portrait. The app is now fully usable in both
+// portrait and landscape, so that watcher was removed — the layout
+// (see css/style.css) is responsive to both orientations instead.
 
 // ===========================================================================
 bootstrap();

@@ -84,20 +84,6 @@ select:focus-visible,
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ---------- Rotate notice ----------
-   Fixed overlay so it sits on top of whatever screen is active
-   underneath, independent of the main screen switcher. */
-.rotate-screen {
-  position: fixed;
-  inset: 0;
-  z-index: 999;
-  justify-content: center;
-  background: linear-gradient(160deg, var(--pink-grad-start), var(--pink-grad-end));
-}
-.rotate-box { text-align: center; margin: auto; }
-.rotate-icon { font-size: 3rem; animation: spin 2.5s linear infinite; margin-bottom: 1rem; }
-.rotate-box p { font-weight: bold; font-size: 1.1rem; }
-
 /* ---------- Home ---------- */
 #screen-home { position: relative; justify-content: flex-start; padding-top: 2rem; }
 
@@ -367,14 +353,15 @@ select:focus-visible,
   .answer-buttons { grid-template-columns: 1fr; }
 }
 
-/* Section 46: on phones/tablets in portrait, show the rotate
-   notice instead of the app. Landscape (or desktop of any size)
-   shows the app normally. app.js toggles #screen-rotate; this
-   media query is a CSS-only safety net for the same condition. */
-@media (max-width: 900px) and (orientation: portrait) {
-  .force-landscape-hide { display: none !important; }
+/* Portrait phones: tighten a few sizes so the quiz screen (question
+   panel + timer bar + answer buttons) fits comfortably above the
+   fold without scrolling, since the app now supports both
+   orientations instead of forcing landscape. */
+@media (max-width: 480px) and (orientation: portrait) {
+  .question-panel { min-height: 22vh; padding: 1rem; }
+  .btn-answer { padding: 0.9rem; font-size: 1.2rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .fade-overlay, .timer-bar-fill, .spinner, .rotate-icon, .btn { transition: none !important; animation: none !important; }
+  .fade-overlay, .timer-bar-fill, .spinner, .btn { transition: none !important; animation: none !important; }
 }

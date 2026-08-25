@@ -21,7 +21,6 @@ export function queryElements() {
       review: byId('screen-review'),
       error: byId('screen-error'),
     },
-    rotateOverlay: byId('screen-rotate'),
     home: {
       mermaidBg: byId('mermaid-bg'),
       affirmationText: byId('affirmation-text'),
@@ -266,9 +265,4 @@ export function bindQuestionPanelGestures(panelEl, onNext) {
 
 export function setOfflineBannerVisible(els, visible) {
   els.offlineBanner.hidden = !visible;
-}
-
-/** Section 46: toggles the fixed "please rotate your device" overlay. */
-export function setRotateOverlayVisible(els, visible) {
-  els.rotateOverlay.hidden = !visible;
 }
