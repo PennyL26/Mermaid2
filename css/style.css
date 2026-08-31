@@ -159,7 +159,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, [tabindex]:focus-vis
   height: 100%;
   background-repeat: no-repeat;
   background-position: left center;
-  background-size: cover;
+  background-size: contain;
   z-index: 0;
   opacity: 0.9;
   pointer-events: none;
